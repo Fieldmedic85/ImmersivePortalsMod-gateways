@@ -1,0 +1,63 @@
+For Fabric-supported Minecraft 1.21.1, here’s a refined approach, as Fabric has some key differences from Forge, especially in mod structure and setup with Gradle:
+
+1. Set Up Fabric for Minecraft 1.21.1
+
+Download the latest Fabric API and Fabric Loader for Minecraft 1.21.1, and make sure your development environment (e.g., IntelliJ IDEA) has Fabric’s Gradle setup.
+
+Configure your build.gradle file to target Minecraft 1.21.1 with Fabric, and include the Fabric API as a dependency:
+
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:1.21.1"
+    mappings "net.fabricmc:yarn:1.21.1+build"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:<latest_version>"
+}
+
+
+2. Add HTTP Server and JSON Dependencies
+
+As with Forge, add NanoHTTPD or Jetty to serve data and Gson or Jackson for JSON serialization:
+
+implementation 'org.nanohttpd:nanohttpd:2.3.1'
+implementation 'com.google.code.gson:gson:2.8.6'
+
+
+3. Implement the HTTP Server in Fabric’s Structure
+
+Fabric’s mod structure doesn’t have the same main mod class as Forge. Instead, use a ModInitializer to start the server when the mod loads:
+
+public class ImmersivePortalsWebXRMod implements ModInitializer {
+    @Override
+    public void onInitialize() {
+        try {
+            new PortalWebServer(); // Start HTTP server
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+Use NanoHTTPD or similar to serve dimension/portal data at specific endpoints (/api/portal/view, etc.).
+
+
+4. Build WebXR Frontend and Connect
+
+With the HTTP server live, build the WebXR frontend separately to interact with this server.
+
+Use Three.js to visualize Minecraft dimensions and objects pulled from the JSON endpoints, starting with simple renders and testing full XR views.
+
+
+5. Test, Optimize, and Package
+
+Run tests to check performance and compatibility with Fabric for Minecraft 1.21.1, then build the mod with:
+
+gradle build
+
+This process will yield a Fabric-compatible JAR you can test in a Fabric client.
+
+
+By using Fabric, you gain streamlined support and lightweight structure, which is ideal for adding custom WebXR portals. Let me know if you need more on Fabric-specific details or other aspects of WebXR integration!
+
