@@ -16,10 +16,6 @@ public class EntitySync {
         DimensionAPI.SERVER_PRE_REMOVE_DIMENSION_EVENT.register(EntitySync::forceRemoveDimension);
     }
     
-    /**
-     * Replace {@link ChunkMap#tick()}
-     * regarding the players in all dimensions
-     */
     public static void update(MinecraftServer server) {
         server.getProfiler().push("ip_entity_tracking_update");
         
@@ -30,7 +26,6 @@ public class EntitySync {
                     ChunkMap chunkMap = world.getChunkSource().chunkMap;
                     Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
                         ((IEChunkMap) chunkMap).ip_getEntityTrackerMap();
-                    DistanceManager distanceManager = chunkMap.getDistanceManager();
                     
                     for (ChunkMap.TrackedEntity trackedEntity : entityTrackerMap.values()) {
                         IETrackedEntity ieTrackedEntity = (IETrackedEntity) trackedEntity;
@@ -65,15 +60,17 @@ public class EntitySync {
                     }
                 }
             );
-            
-            
         }
         
         server.getProfiler().pop();
     }
     
     private static void forceRemoveDimension(ServerLevel world) {
-    
+        ChunkMap chunkMap = world.getChunkSource().chunkMap;
+        Int2ObjectMap<ChunkMap.TrackedEntity> entityTrackerMap =
+            ((IEChunkMap) chunkMap).ip_getEntityTrackerMap();
+        
+        entityTrackerMap.values().forEach(trackedEntity -> 
+            ((IETrackedEntity) trackedEntity).ip_stopTracking());
     }
-    
 }
